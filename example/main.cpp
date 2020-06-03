@@ -31,6 +31,9 @@ int main(int argc, char *argv[]) {
 	vector<string> sv;
 	string fname;
 	string fout;
+	double weight = 1.0;
+	bool outflag = false;
+	bool inflag = false;
 
 	//string s("长江证券_韩轶超,002352.SZ");
 	//vector<string> sv;
@@ -40,23 +43,34 @@ int main(int argc, char *argv[]) {
 	//}
 
 	//return 0;
+	outflag = false;
 	if (argc == 1)
-		fname = "D:\\scripts\\python\\tf\\tttt - 副本.csv";
+	{
+		example.add_edge("liup", "1", weight);
+		example.add_edge("liup", "2", weight);
+		//example.add_edge("djh", "2");
+		//example.add_edge("djh", "5");
+		//example.add_edge("lcj", "1");
+		//example.add_edge("lcj", "4");
+	}
 	else
 	{
 		fname = argv[1];
 		fout = argv[2];
+		inflag = true;
+		outflag = true;
 	}
-
-	ifs.open(fname,ios::in);
-	ofs.open(fout, ios::out);
-	if (!ifs.is_open())
+	if (inflag)
+		ifs.open(fname,ios::in);
+	if (outflag)
+		ofs.open(fout, ios::out);
+	if (inflag && !ifs.is_open())
 	{
 		cout << "输入文件打开失败！" << endl;
 		return 0;
 	}
 
-	if (!ofs.is_open())
+	if (outflag && !ofs.is_open())
 	{
 		cout << "输出文件打开失败！" << endl;
 		return 0;
@@ -64,20 +78,16 @@ int main(int argc, char *argv[]) {
 	
 	while (getline(ifs, buf))
 	{
-
 		split(buf, sv, ',');
-		example.add_edge(sv[0], sv[1]);
+		weight = stod(sv[2]);
+		cout << buf <<","<< weight << endl;
+		example.add_edge(sv[0], sv[1],weight);
 		//cout << buf << endl;
 	}
 	ifs.close();
 	//return 0;
 
-	//example.add_edge("liup", "1");
-	//example.add_edge("liup", "2");
-	//example.add_edge("djh", "2");
-	//example.add_edge("djh", "5");
-	//example.add_edge("lcj", "1");
-	//example.add_edge("lcj", "4");
+	
 
 	cout << "开始计算" << endl;
 	example.calculate_simrank();
@@ -87,8 +97,11 @@ int main(int argc, char *argv[]) {
 			if (a >= b) { continue; }
 			double s = example.similarity(a, b);
 			if (s > 0) {
-				std::cout << "similarity(" << a << ", " << b << ") = " << s << std::endl;
-				ofs << a << ","<< b<<","<< s << std::endl;
+				if(outflag)
+					ofs << a << ","<< b<<","<< s << std::endl;
+				else
+					std::cout << "similarity(" << a << ", " << b << ") = " << s << std::endl;
+
 			}
 		}
 	}
